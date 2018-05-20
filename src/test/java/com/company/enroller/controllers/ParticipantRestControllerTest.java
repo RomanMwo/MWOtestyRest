@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.util.Collection;
 
@@ -63,5 +64,19 @@ public class ParticipantRestControllerTest {
 		.andExpect(content().string("{\"login\":\"testlogin\",\"password\":\"testpassword\"}"));
 	}
 	
+	@Test
+	public void deleteParticipant() throws Exception {
+		Participant participant = new Participant();
+		participant.setLogin("testlogin");
+		participant.setPassword("testpassword");
+		
+
+		given(participantService.findByLogin(participant.getLogin())).willReturn(participant);
+		
+		participantService.delete(participant);
+		mvc.perform(delete("/participants/testlogin").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		.andExpect(content().string(""));
+		//verify(participantService);
+	}
 }
 
