@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.company.enroller.model.Participant;
 import com.company.enroller.persistence.MeetingService;
 import com.company.enroller.persistence.ParticipantService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ParticipantRestController.class)
@@ -74,9 +75,25 @@ public class ParticipantRestControllerTest {
 		given(participantService.findByLogin(participant.getLogin())).willReturn(participant);
 		
 		participantService.delete(participant);
-		mvc.perform(delete("/participants/testlogin").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		mvc.perform(delete("/participants/testlogin").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent())
 		.andExpect(content().string(""));
 		//verify(participantService);
 	}
+	
+	@Test
+	public void addParticipant() throws Exception {
+		Participant participant = new Participant();
+		participant.setLogin("testlogin");
+		participant.setPassword("testpassword");
+		String inputJSON = new ObjectMapper().writeValueAsString(participant);
+
+		given(participantService.findByLogin(participant.getLogin())).willReturn(participant);
+		
+		
+		mvc.perform(post("/participants").content(inputJSON).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated())
+		.andExpect(content().string(""));
+		//verify(participantService);
+	}
+	
 }
 
